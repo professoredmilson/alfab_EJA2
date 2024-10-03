@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Alfabetização Acessível</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            line-height: 1.6;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff8e1;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1, h3 {
+            color: #2c3e50;
+        }
+        img {
+            max-width: 200px;
+            margin-bottom: 10px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+        }
+        #palavraEmbaralhada {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+        input {
+            font-size: 18px;
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 300px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+        }
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #mensagem {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        #instrucoes {
+            display: none;
+            text-align: left;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f6f3;
+            border: 1px solid #a3e4d7;
+            border-radius: 5px;
+        }
+        #instrucoes ol {
+            padding-left: 20px;
+        }
+        #instrucoes li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jogo de Alfabetização Acessível</h1>
+        <img id="imagem" src="/api/placeholder/200/200" alt="Objeto para adivinhar">
+        <p id="palavraEmbaralhada" aria-label="Letras da palavra embaralhadas"></p>
+        <input type="text" id="resposta" placeholder="Digite o nome do objeto" aria-label="Digite o nome do objeto">
+        <br>
+        <button onclick="conferir()">Conferir</button>
+        <button onclick="novoJogo()">Jogar Novamente</button>
+        <button onclick="toggleInstrucoes()">Instruções</button>
+        <p id="mensagem" aria-live="polite"></p>
+        <div id="instrucoes">
+            <h3>Como Jogar:</h3>
+            <ol>
+                <li>Observe atentamente a imagem exibida na tela.</li>
+                <li>Veja as letras embaralhadas abaixo da imagem. Essas são as letras da palavra que você precisa adivinhar.</li>
+                <li>Digite o nome do objeto no campo de texto.</li>
+                <li>Clique no botão "Conferir" para verificar sua resposta.</li>
+                <li>Se acertar, você verá uma mensagem de parabéns!</li>
+                <li>Se errar, não se preocupe! Você receberá uma dica.</li>
+                <li>Tente novamente até acertar.</li>
+                <li>Use o botão "Jogar Novamente" para ver uma nova imagem e continuar praticando.</li>
+            </ol>
+            <p>Dica: Não se preocupe com acentos ou letras maiúsculas. O importante é tentar!</p>
+        </div>
+    </div>
+
+    <script>
+        const objetos = [
+            {nome: "bola", imagem: "/api/placeholder/200/200", dica: "Objeto redondo usado em muitos esportes"},
+            {nome: "casa", imagem: "/api/placeholder/200/200", dica: "Lugar onde moramos"},
+            {nome: "gato", imagem: "/api/placeholder/200/200", dica: "Animal de estimação que mia"},
+            {nome: "livro", imagem: "/api/placeholder/200/200", dica: "Objeto com páginas para ler"},
+            {nome: "arvore", imagem: "/api/placeholder/200/200", dica: "Planta grande com tronco e folhas"},
+            {nome: "sol", imagem: "/api/placeholder/200/200", dica: "Estrela que ilumina o dia"},
+            {nome: "peixe", imagem: "/api/placeholder/200/200", dica: "Animal que vive na água e tem nadadeiras"},
+            {nome: "lua", imagem: "/api/placeholder/200/200", dica: "Satélite natural da Terra, visível à noite"},
+            {nome: "flor", imagem: "/api/placeholder/200/200", dica: "Parte colorida e perfumada de uma planta"},
+            {nome: "carro", imagem: "/api/placeholder/200/200", dica: "Veículo com quatro rodas para transporte"}
+        ];
+
+        let objetoAtual;
+
+        function embaralharPalavra(palavra) {
+            return palavra.split('').sort(() => Math.random() - 0.5).join('');
+        }
+
+        function novoJogo() {
+            objetoAtual = objetos[Math.floor(Math.random() * objetos.length)];
+            document.getElementById("imagem").src = objetoAtual.imagem;
+            document.getElementById("imagem").alt = "Imagem de " + objetoAtual.nome;
+            document.getElementById("palavraEmbaralhada").textContent = embaralharPalavra(objetoAtual.nome.toUpperCase());
+            document.getElementById("resposta").value = "";
+            document.getElementById("mensagem").textContent = "";
+        }
+
+        function conferir() {
+            const resposta = document.getElementById("resposta").value.toLowerCase().trim();
+            const respostaNormalizada = resposta.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const nomeNormalizado = objetoAtual.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            
+            if (respostaNormalizada === nomeNormalizado) {
+                document.getElementById("mensagem").textContent = "Parabéns! Você acertou!";
+            } else {
+                document.getElementById("mensagem").textContent = `Tente novamente. Dica: ${objetoAtual.dica}. A palavra começa com '${objetoAtual.nome[0]}' e tem ${objetoAtual.nome.length} letras.`;
+            }
+        }
+
+        function toggleInstrucoes() {
+            const instrucoes = document.getElementById("instrucoes");
+            if (instrucoes.style.display === "none" || instrucoes.style.display === "") {
+                instrucoes.style.display = "block";
+            } else {
+                instrucoes.style.display = "none";
+            }
+        }
+
+        novoJogo();
+    </script>
+</body>
+</html>
